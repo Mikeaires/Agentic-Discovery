@@ -44,10 +44,16 @@ not you — drive the discovery to a usable result?
 - This is the same engine, new ontology + multiple sources — which is why it comes after the
   process slice is solid.
 
-## Stage 5 — Surface & scale (only once the engine earns it)
-- Voice / live transcription.
-- Web UI with the live graph + coverage view.
-- Persistent typed graph store if multi-session querying demands it.
+## Stage 5 — Surface & scale (partly built in v0.2)
+- **Web UI (built)** — mobile-first chat over the unchanged engine (`web/`,
+  `WebChannel`), with a live coverage meter.
+- **Voice (built, lightweight)** — browser Web Speech API for speech-to-text and
+  text-to-speech, behind the same channel. Server-side STT/TTS and an avatar are
+  the next increments on this same seam.
+- **Graphical report (built)** — `report.py` renders the graph to a self-contained
+  HTML page (diagram + interactive graph + findings + provenance).
+- Still ahead: a one-command public URL for phone access; persistent typed graph
+  store if multi-session querying demands it.
 
 ## Things to deliberately *not* do early
 - Don't build a fancy graph database before the loop works (JSON/SQLite is fine).

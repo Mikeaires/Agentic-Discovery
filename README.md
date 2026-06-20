@@ -160,16 +160,24 @@ graph store (start simple), and text-first vs voice (→ text first).
 
 ## Status
 
-**Walking skeleton built (v0.1).** A runnable, use-case-agnostic discovery engine with the
+**Walking skeleton built (v0.2).** A runnable, use-case-agnostic discovery engine with the
 full loop (graph → planner → question → extractor → critic), three discovery modules
 (process discovery fully built; AI-use-case and architecture discovery wired as stubs on the
-same engine), an interaction-channel abstraction (text built, voice/avatar scaffolded), and
-synthesizers that turn the graph into a Mermaid process map, a process doc, and grounded AI
-use-case ideas. Runs offline with a deterministic mock brain, or live against
+same engine), and synthesizers that turn the graph into a Mermaid process map, a process doc,
+and grounded AI use-case ideas. Runs offline with a deterministic mock brain, or live against
 `claude-opus-4-8`.
+
+On top of that, v0.2 adds the human-interaction surface:
+
+- **Phone/web interview** — a mobile-first chat UI over the *unchanged* engine (the browser is
+  just another interaction channel), with **voice in/out** via the browser Web Speech API.
+- **Graphical HTML report** — a single self-contained page with a rendered process diagram, an
+  interactive knowledge graph, the written findings, and coverage/provenance/contradiction panels.
 
 ```bash
 python -m agentic_discovery --module process   # offline demo, no install needed
+python -m agentic_discovery --serve            # phone-friendly web UI (+ voice)
+python -m agentic_discovery --module process --out ./out   # writes report.html
 ```
 
 See **`BUILD.md`** for how to run it and how the code maps to this concept, plus

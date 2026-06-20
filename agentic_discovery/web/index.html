@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#0f1115"/>
+<title>Agentic Discovery</title>
+<style>
+  :root { --bg:#0f1115; --card:#181b22; --line:#272b35; --ink:#e8eaed;
+          --muted:#9aa3b2; --accent:#4c6ef5; --me:#1f3a8a; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; }
+  body { margin:0; background:var(--bg); color:var(--ink); display:flex;
+         flex-direction:column;
+         font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  header { padding:14px 16px; border-bottom:1px solid var(--line);
+           display:flex; align-items:center; gap:10px; }
+  header h1 { font-size:16px; margin:0; flex:1; }
+  .bar { height:5px; background:var(--line); border-radius:5px; overflow:hidden;
+         width:90px; }
+  .bar > i { display:block; height:100%; width:0;
+             background:linear-gradient(90deg,#4c6ef5,#12b886); transition:width .4s; }
+  .cov { font-size:12px; color:var(--muted); min-width:34px; text-align:right; }
+  .iconbtn { background:var(--card); border:1px solid var(--line); color:var(--muted);
+             width:38px; height:38px; border-radius:10px; font-size:16px; cursor:pointer; }
+  .iconbtn.on { color:var(--accent); border-color:var(--accent); }
+  main { flex:1; overflow-y:auto; padding:16px; }
+  .wrap { max-width:760px; margin:0 auto; }
+
+  /* setup card */
+  .setup { background:var(--card); border:1px solid var(--line); border-radius:14px;
+           padding:18px; }
+  .setup h2 { margin:0 0 4px; font-size:17px; }
+  .setup p { color:var(--muted); margin:0 0 16px; font-size:14px; }
+  label { display:block; font-size:13px; color:var(--muted); margin:14px 0 6px; }
+  select, input[type=text] { width:100%; background:var(--bg); color:var(--ink);
+    border:1px solid var(--line); border-radius:10px; padding:11px 12px; font-size:15px; }
+  .modes { display:flex; gap:8px; margin-top:6px; }
+  .modes button { flex:1; background:var(--bg); border:1px solid var(--line);
+    color:var(--ink); border-radius:10px; padding:11px; font-size:14px; cursor:pointer; }
+  .modes button.on { border-color:var(--accent); color:#fff;
+    background:linear-gradient(180deg,#26305a,#1b2030); }
+  .modes small { display:block; color:var(--muted); font-size:11px; margin-top:3px; }
+  .start { margin-top:18px; width:100%; background:var(--accent); color:#fff;
+    border:none; border-radius:10px; padding:13px; font-size:16px; font-weight:600;
+    cursor:pointer; }
+  .start:disabled { opacity:.5; }
+
+  /* chat */
+  .msg { display:flex; margin:10px 0; }
+  .msg .b { max-width:84%; padding:11px 14px; border-radius:16px; white-space:pre-wrap;
+            word-wrap:break-word; }
+  .agent .b { background:var(--card); border:1px solid var(--line);
+              border-bottom-left-radius:4px; }
+  .me { justify-content:flex-end; }
+  .me .b { background:var(--me); border-bottom-right-radius:4px; }
+  .status { text-align:center; color:var(--muted); font-size:12px; margin:8px 0; }
+  .typing .b { color:var(--muted); }
+
+  .done { background:var(--card); border:1px solid var(--line); border-radius:14px;
+          padding:18px; text-align:center; margin-top:14px; }
+  .done h2 { margin:0 0 6px; font-size:17px; }
+  .done p { color:var(--muted); font-size:14px; margin:4px 0 14px; }
+  .done a { display:inline-block; background:var(--accent); color:#fff;
+            text-decoration:none; padding:12px 20px; border-radius:10px; font-weight:600; }
+  .done .again { display:block; margin-top:12px; color:var(--muted); font-size:13px;
+                 background:none; border:none; cursor:pointer; }
+
+  /* composer */
+  footer { border-top:1px solid var(--line); padding:10px 12px; }
+  .composer { max-width:760px; margin:0 auto; display:flex; gap:8px; align-items:flex-end; }
+  textarea { flex:1; resize:none; background:var(--card); color:var(--ink);
+    border:1px solid var(--line); border-radius:14px; padding:12px 14px; font-size:16px;
+    max-height:140px; }
+  .send { background:var(--accent); border:none; color:#fff; width:46px; height:46px;
+    border-radius:14px; font-size:18px; cursor:pointer; }
+  .send:disabled { opacity:.45; }
+  .mic.rec { background:#e03131; color:#fff; border-color:#e03131; animation:pulse 1.1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.55} }
+  .hidden { display:none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🧭 Agentic Discovery</h1>
+  <span class="cov" id="covLabel"></span>
+  <div class="bar"><i id="covBar"></i></div>
+  <button class="iconbtn" id="speakBtn" title="Read questions aloud">🔊</button>
+</header>
+
+<main><div class="wrap">
+  <!-- setup -->
+  <div class="setup" id="setup">
+    <h2>Start a discovery interview</h2>
+    <p>I'll ask adaptive questions and build a grounded map of what you tell me.
+       At the end you get a graphical report.</p>
+    <label>What are we discovering?</label>
+    <select id="moduleSel"></select>
+    <label>Mode</label>
+    <div class="modes" id="modes">
+      <button data-mode="live" class="on">Live<small>Claude asks &amp; listens</small></button>
+      <button data-mode="demo">Demo<small>scripted, offline</small></button>
+    </div>
+    <label>Your name (optional)</label>
+    <input type="text" id="nameInp" placeholder="e.g. Maria, AP team"/>
+    <button class="start" id="startBtn">Begin interview</button>
+  </div>
+
+  <!-- chat -->
+  <div id="chat" class="hidden"></div>
+</div></main>
+
+<footer class="hidden" id="composer">
+  <div class="composer">
+    <button class="iconbtn mic" id="micBtn" title="Speak your answer">🎙</button>
+    <textarea id="input" rows="1" placeholder="Type your answer…"></textarea>
+    <button class="send" id="sendBtn">➤</button>
+  </div>
+</footer>
+
+<script>
+const $ = (id)=>document.getElementById(id);
+const state = { sid:null, mode:"live", busy:false, speak:false };
+
+// ---- setup ----
+async function loadModules(){
+  const r = await fetch("/api/modules"); const d = await r.json();
+  const sel = $("moduleSel");
+  d.modules.forEach(m=>{ const o=document.createElement("option");
+    o.value=m.name; o.textContent=m.title; sel.appendChild(o); });
+  if(!d.live_available){
+    const lb=document.querySelector('[data-mode="live"]');
+    lb.querySelector("small").textContent="needs API key — using demo";
+  }
+  state.liveAvailable = d.live_available;
+  if(!d.live_available) selectMode("demo");
+}
+function selectMode(mode){
+  state.mode = mode;
+  document.querySelectorAll("#modes button").forEach(b=>
+    b.classList.toggle("on", b.dataset.mode===mode));
+}
+$("modes").addEventListener("click", e=>{
+  const b=e.target.closest("button"); if(b) selectMode(b.dataset.mode);
+});
+
+$("startBtn").onclick = async ()=>{
+  $("startBtn").disabled = true;
+  const body = { module:$("moduleSel").value, mode:state.mode,
+                 interviewee:$("nameInp").value.trim() };
+  const r = await fetch("/api/session", {method:"POST",
+    headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+  const d = await r.json();
+  if(d.kind==="error"){ alert(d.text); $("startBtn").disabled=false; return; }
+  state.sid = d.session_id;
+  $("setup").classList.add("hidden");
+  $("chat").classList.remove("hidden");
+  $("composer").classList.remove("hidden");
+  handle(d);
+};
+
+// ---- chat rendering ----
+function bubble(text, who){
+  const m=document.createElement("div"); m.className="msg "+who;
+  const b=document.createElement("div"); b.className="b"; b.textContent=text;
+  m.appendChild(b); $("chat").appendChild(m); scroll(); return m;
+}
+function status(text){
+  const s=document.createElement("div"); s.className="status"; s.textContent=text;
+  $("chat").appendChild(s); scroll();
+}
+function scroll(){ const m=document.querySelector("main"); m.scrollTop=m.scrollHeight; }
+
+let typingEl=null;
+function typing(on){
+  if(on){ typingEl=bubble("…thinking", "msg agent typing"); }
+  else if(typingEl){ typingEl.remove(); typingEl=null; }
+}
+
+function setCoverage(c){
+  if(c==null) return;
+  const pct=Math.round(c*100);
+  $("covBar").style.width=pct+"%"; $("covLabel").textContent=pct+"%";
+}
+
+function handle(d){
+  if(d.coverage!=null) setCoverage(d.coverage);
+  if(d.kind==="question"){
+    if(d.status) {/* status carries open-thread count; keep it subtle */}
+    bubble(d.text, "agent");
+    if(state.speak) speak(d.text);
+    enable(true);
+  } else if(d.kind==="done"){
+    enable(false);
+    finish(d);
+  } else if(d.kind==="error"){
+    bubble("⚠ "+d.text, "agent"); enable(true);
+  }
+}
+
+function finish(d){
+  setCoverage(d.coverage);
+  const div=document.createElement("div"); div.className="done";
+  div.innerHTML = `<h2>Discovery complete</h2>
+    <p>${d.stop_reason||""}<br>${d.nodes} entities · ${d.edges} relationships`
+    + (d.contradictions?` · ⚠ ${d.contradictions} contradiction(s)`:``) + `</p>
+    <a href="${d.report_url}" target="_blank">📊 Open graphical report</a>
+    <button class="again">↺ Start another interview</button>`;
+  $("chat").appendChild(div); scroll();
+  div.querySelector(".again").onclick = ()=>location.reload();
+  $("composer").classList.add("hidden");
+}
+
+// ---- sending answers ----
+function enable(on){
+  state.busy = !on;
+  $("sendBtn").disabled = !on; $("input").disabled = !on;
+  if(on) $("input").focus();
+}
+async function send(){
+  const t=$("input").value.trim();
+  if(!t || state.busy) return;
+  bubble(t, "me"); $("input").value=""; autosize();
+  enable(false); typing(true);
+  try{
+    const r=await fetch(`/api/session/${state.sid}/answer`,{method:"POST",
+      headers:{"Content-Type":"application/json"}, body:JSON.stringify({answer:t})});
+    const d=await r.json(); typing(false); handle(d);
+  }catch(e){ typing(false); bubble("⚠ network error — try again","agent"); enable(true); }
+}
+$("sendBtn").onclick = send;
+$("input").addEventListener("keydown", e=>{
+  if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send(); }
+});
+function autosize(){ const i=$("input"); i.style.height="auto";
+  i.style.height=Math.min(i.scrollHeight,140)+"px"; }
+$("input").addEventListener("input", autosize);
+
+// ---- voice: speech-to-text (Web Speech API) ----
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recog=null, recording=false;
+if(SR){
+  recog=new SR(); recog.lang="en-US"; recog.interimResults=true; recog.continuous=false;
+  recog.onresult=(e)=>{
+    let txt=""; for(let i=e.resultIndex;i<e.results.length;i++) txt+=e.results[i][0].transcript;
+    $("input").value=txt; autosize();
+  };
+  recog.onend=()=>{ recording=false; $("micBtn").classList.remove("rec"); };
+} else { $("micBtn").style.display="none"; }
+$("micBtn").onclick=()=>{
+  if(!recog) return;
+  if(recording){ recog.stop(); return; }
+  try{ recog.start(); recording=true; $("micBtn").classList.add("rec"); }catch(_){}
+};
+
+// ---- voice: text-to-speech ----
+function speak(text){
+  if(!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text); u.lang="en-US"; u.rate=1.02;
+  speechSynthesis.speak(u);
+}
+$("speakBtn").onclick=()=>{
+  state.speak=!state.speak;
+  $("speakBtn").classList.toggle("on", state.speak);
+  if(!state.speak && window.speechSynthesis) speechSynthesis.cancel();
+};
+
+loadModules();
+</script>
+</body>
+</html>

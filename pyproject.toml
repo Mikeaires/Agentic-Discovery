@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentic-discovery"
-version = "0.1.0"
+version = "0.2.0"
 description = "An agent that interviews people to discover knowledge, driven by a knowledge graph."
 requires-python = ">=3.10"
 dependencies = []
@@ -18,6 +18,9 @@ discovery = "agentic_discovery.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["agentic_discovery*"]
+
+[tool.setuptools.package-data]
+agentic_discovery = ["web/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

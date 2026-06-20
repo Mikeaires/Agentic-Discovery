@@ -5,10 +5,12 @@ from .ontology import Ontology, compute_coverage
 from .engine import DiscoveryEngine, InterviewResult
 from .brain import Brain, MockBrain, ClaudeBrain
 from .channels import InteractionChannel, TextChannel, ScriptedChannel, VoiceChannel
+from .report import build_html_report, ReportMeta
 
 __all__ = [
     "KnowledgeGraph", "GraphDelta", "NodeAssertion", "EdgeAssertion",
     "Ontology", "compute_coverage", "DiscoveryEngine", "InterviewResult",
     "Brain", "MockBrain", "ClaudeBrain",
     "InteractionChannel", "TextChannel", "ScriptedChannel", "VoiceChannel",
+    "build_html_report", "ReportMeta",
 ]
