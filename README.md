@@ -160,6 +160,17 @@ graph store (start simple), and text-first vs voice (→ text first).
 
 ## Status
 
-Concept stage. This repo currently holds the thinking. Next step is a minimal vertical-slice
-prototype of the loop for single-process discovery — see `docs/architecture.md` and
-`docs/roadmap.md`.
+**Walking skeleton built (v0.1).** A runnable, use-case-agnostic discovery engine with the
+full loop (graph → planner → question → extractor → critic), three discovery modules
+(process discovery fully built; AI-use-case and architecture discovery wired as stubs on the
+same engine), an interaction-channel abstraction (text built, voice/avatar scaffolded), and
+synthesizers that turn the graph into a Mermaid process map, a process doc, and grounded AI
+use-case ideas. Runs offline with a deterministic mock brain, or live against
+`claude-opus-4-8`.
+
+```bash
+python -m agentic_discovery --module process   # offline demo, no install needed
+```
+
+See **`BUILD.md`** for how to run it and how the code maps to this concept, plus
+`docs/architecture.md` and `docs/roadmap.md` for the design.

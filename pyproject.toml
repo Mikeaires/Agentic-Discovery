@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentic-discovery"
+version = "0.1.0"
+description = "An agent that interviews people to discover knowledge, driven by a knowledge graph."
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+claude = ["anthropic>=0.40"]
+dev = ["pytest>=7"]
+
+[project.scripts]
+discovery = "agentic_discovery.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["agentic_discovery*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
